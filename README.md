@@ -56,7 +56,7 @@ To run this project locally, follow these steps:
 
     ```bash
     git clone https://github.com/AshwinSaklecha/expenseTracker.git
-    cd Expense-tracker
+    cd expenseTracker
     ```
 
 2. Navigate to the backend directory:
