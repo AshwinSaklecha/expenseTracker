@@ -2,7 +2,7 @@
 
 const Transaction = require("../models/transactionModels");
 
-exports.getTransactions = async (req, res) => {
+let getTransactions = async (req, res) => {
     try {
         const user_id = req.user._id; // Assuming user ID is available in req.user._id
         const transactions = await Transaction.find({ user_id }).sort({ date: -1 });
@@ -12,3 +12,5 @@ exports.getTransactions = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+module.exports = { getTransactions };

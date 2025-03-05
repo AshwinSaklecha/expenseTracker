@@ -36,6 +36,11 @@ const TransactionSchema = new mongoose.Schema({
     user_id:{
         type: String,
         required: true,
+    },
+    originalId: { // Add this field
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        refPath: 'type' // This can be used to reference either Income or Expense
     }
 }, { timestamps: true });
 

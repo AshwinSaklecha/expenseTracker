@@ -1,30 +1,28 @@
 const express = require('express');
 const cors = require('cors');
-const { db } = require('./db'); 
-const { readdirSync } = require('fs');
-const userRoutes = require('./routes/user');
-const app = express();
-
 require('dotenv').config();
+
+const { db } = require('./db'); 
+
+const app = express();
 
 const PORT = process.env.PORT || 3001; 
 
 // Middlewares
-app.use(express.json());
 app.use(cors());
+app.use(express.json());
 
+const transactionRoutes = require('./routes/transactions');
+const userRoutes = require('./routes/user');
 
-
-// Dynamically load routes
-readdirSync('./routes').map((route) => app.use('/api/v1', require('./routes/' + route)));
 app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/transaction', transactionRoutes);
 
 // Server setup
 const server = () => {
-    db(); 
+    db();
     app.listen(PORT, () => {
         console.log('Listening to Port:', PORT);
     });
 };
-
 server();

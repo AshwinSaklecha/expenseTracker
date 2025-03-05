@@ -3,7 +3,7 @@
 const IncomeSchema = require("../models/incomeModels");
 const Transaction = require("../models/transactionModels");
 
-exports.addIncome = async (req, res) => {
+let addIncome = async (req, res) => {
     const { title, amount, category, description, date } = req.body;
     const user_id = req.user._id; // Assuming user ID is available in req.user._id
 
@@ -16,23 +16,25 @@ exports.addIncome = async (req, res) => {
         user_id // Assign user_id to the income
     });
 
-    const transaction = new Transaction({
-        title,
-        amount,
-        category,
-        description,
-        date,
-        type: 'income',
-        user_id // Assign user_id to the transaction
-    });
-
     try {
         // Validations
-        if (!title || !category || !description || !date) {
+        if (!title || !category || !description || !date || !amount) {
             return res.status(400).json({ message: 'All fields are required' });
         }
         
         await income.save();
+
+        const transaction = new Transaction({
+            title,
+            amount,
+            category,
+            description,
+            date,
+            type: 'income',
+            user_id,
+            originalId: income._id // Set originalId to the income's _id
+        });
+
         await transaction.save();
 
         res.status(200).json({ message: 'Income Added' });
@@ -42,7 +44,7 @@ exports.addIncome = async (req, res) => {
     }
 };
 
-exports.getIncomes = async (req, res) => {
+let getIncomes = async (req, res) => {
     try {
         const user_id = req.user._id; // Assuming user ID is available in req.user._id
         const incomes = await IncomeSchema.find({ user_id }).sort({ createdAt: -1 });
@@ -53,11 +55,11 @@ exports.getIncomes = async (req, res) => {
     }
 };
 
-exports.deleteIncome = async (req, res) => {
+let deleteIncome = async (req, res) => {
     const { id } = req.params;
     try {
         await IncomeSchema.findOneAndDelete({ _id: id, user_id: req.user._id });
-        await Transaction.findOneAndDelete({ originalId: id, type: 'income', user_id: req.user._id });
+        await Transaction.findOneAndDelete({ originalId: id, type: 'income', user_id: req.user._id }); //flaw
         res.status(200).json({ message: 'Income Deleted' });
     } catch (error) {
         console.error(error);
@@ -65,7 +67,7 @@ exports.deleteIncome = async (req, res) => {
     }
 };
 
-exports.updateIncome = async (req, res) => {
+let updateIncome = async (req, res) => {
     const { id } = req.params;
     const { title, amount, category, description, date } = req.body;
     const user_id = req.user._id;
@@ -78,7 +80,7 @@ exports.updateIncome = async (req, res) => {
         );
 
         await Transaction.findOneAndUpdate(
-            { originalId: id, type: 'income', user_id },
+            { originalId: id, type: 'income', user_id }, //flaw
             { title, amount, category, description, date },
             { new: true }
         );
@@ -89,3 +91,5 @@ exports.updateIncome = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+module.exports = { addIncome, getIncomes, deleteIncome, updateIncome};

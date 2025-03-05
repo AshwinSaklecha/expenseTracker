@@ -1,7 +1,7 @@
 const ExpenseSchema = require("../models/expenseModels");
 const Transaction = require("../models/transactionModels");
 
-exports.addExpense = async (req, res) => {
+let addExpense = async (req, res) => {
     const { title, amount, category, description, date } = req.body;
     const user_id = req.user._id; // Assuming user ID is available in req.user._id
 
@@ -21,7 +21,8 @@ exports.addExpense = async (req, res) => {
         description,
         date,
         type: 'expense',
-        user_id // Assign user_id to the transaction
+        user_id,
+        originalId: expense._id // Assign user_id to the transaction
     });
 
     try {
@@ -40,7 +41,7 @@ exports.addExpense = async (req, res) => {
     }
 };
 
-exports.getExpenses = async (req, res) => {
+let getExpenses = async (req, res) => {
     try {
         const user_id = req.user._id; // Assuming user ID is available in req.user._id
         const expenses = await ExpenseSchema.find({ user_id }).sort({ createdAt: -1 });
@@ -51,7 +52,7 @@ exports.getExpenses = async (req, res) => {
     }
 };
 
-exports.deleteExpense = async (req, res) => {
+let deleteExpense = async (req, res) => {
     const { id } = req.params;
     try {
         await ExpenseSchema.findOneAndDelete({ _id: id, user_id: req.user._id });
@@ -63,7 +64,7 @@ exports.deleteExpense = async (req, res) => {
     }
 };
 
-exports.updateExpense = async (req, res) => {
+let updateExpense = async (req, res) => {
     const { id } = req.params;
     const { title, amount, category, description, date } = req.body;
     const user_id = req.user._id;
@@ -87,3 +88,5 @@ exports.updateExpense = async (req, res) => {
         res.status(500).json({ message: 'Server Error' });
     }
 };
+
+module.exports = { addExpense, getExpenses, deleteExpense, updateExpense};
